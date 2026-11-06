@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mnemonic Scaler</title>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="game.js"></script>
+    <script defer src="app.js"></script>
+  </head>
+  <body data-phase="start">
+    <header id="titlebar" data-tauri-drag-region>
+      <span class="app-name" data-tauri-drag-region>Mnemonic Scaler</span>
+      <div id="window-controls">
+        <button id="minimize-button" type="button" aria-label="Minimize">&#x2013;</button>
+        <button id="close-button" type="button" aria-label="Close">&#x2715;</button>
+      </div>
+    </header>
+
+    <section id="stats" aria-label="Session stats">
+      <div class="stat"><span class="stat-value" id="stat-score">0 / 0</span><span class="stat-label">Correct</span></div>
+      <div class="stat"><span class="stat-value" id="stat-rounds">0</span><span class="stat-label">Rounds</span></div>
+      <div class="stat"><span class="stat-value" id="stat-streak">0</span><span class="stat-label">Streak</span></div>
+      <div class="stat"><span class="stat-value" id="stat-best">0</span><span class="stat-label">Best</span></div>
+      <div class="stat"><span class="stat-value" id="stat-accuracy">&#x2014;</span><span class="stat-label">Accuracy</span></div>
+    </section>
+
+    <main id="screen"></main>
+  </body>
+</html>
