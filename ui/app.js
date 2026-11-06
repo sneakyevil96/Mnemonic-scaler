@@ -97,7 +97,7 @@
   function renderStart() {
     const start = el('button', { id: 'start-button', class: 'primary', type: 'button', text: 'Start', onclick: startRound });
     screen.replaceChildren(
-      el('div', { class: 'intro glass-panel' }, [
+      el('div', { class: 'intro glass' }, [
         el('h1', { text: 'Remember the card' }),
         el('p', { text: 'Study 9 icons for 10 seconds. They hide, then you name the icons at 2 random positions.' }),
         el('p', { text: 'Each round brings a new card. Stop whenever you like.' }),

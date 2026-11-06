@@ -1,11 +1,18 @@
 :root {
   --gap: 10px;
-  --radius: 16px;
+  --radius: 18px;
+  --edge: 7px;
   --text: #fff;
-  --text-soft: rgba(255, 255, 255, 0.82);
-  --right: #5dffa8;
-  --wrong: #ff8a8a;
-  --accent: #8fd3ff;
+  --text-soft: rgba(255, 255, 255, 0.86);
+  --right: #6dffb4;
+  --wrong: #ff9d94;
+  --accent: #7fe9ff;
+  --glass-dim: brightness(0.55);
+  --glass-fill:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.03) 48%),
+    rgba(10, 14, 30, 0.25);
+  --display-font: "Bahnschrift", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  --body-font: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
   --emoji-font: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
   /* The layout sizes from whichever window side is tighter. */
   --tile: clamp(64px, min(22vw, 19vh), 140px);
@@ -30,9 +37,138 @@ body {
   display: grid;
   grid-template-rows: auto auto minmax(0, 1fr);
   overflow: hidden;
-  background: #1b1f33;
+  /* Stands in for the desktop outside the app. html.tauri removes it. */
+  background: linear-gradient(150deg, #0a1a30, #10263c 55%, #071320);
   color: var(--text);
-  font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+  font-family: var(--body-font);
+}
+
+html.tauri,
+html.tauri body {
+  background: transparent;
+}
+
+/* Backdrop: drifting color for the glass to bend, under a light tint.
+   The tint also keeps the app usable when Windows gives no acrylic. */
+#backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+}
+
+#backdrop::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 14, 30, 0.3);
+}
+
+.blob {
+  position: absolute;
+  width: 62vmax;
+  height: 62vmax;
+  border-radius: 50%;
+  opacity: 0.8;
+  animation: drift 38s ease-in-out infinite alternate;
+}
+
+.blob-aqua {
+  top: -24vmax;
+  left: -16vmax;
+  background: radial-gradient(circle, rgba(0, 224, 200, 0.9), transparent 68%);
+}
+
+.blob-azure {
+  right: -22vmax;
+  top: -8vmax;
+  background: radial-gradient(circle, rgba(38, 118, 255, 0.9), transparent 68%);
+  animation-duration: 46s;
+  animation-direction: alternate-reverse;
+}
+
+.blob-coral {
+  left: 14vmax;
+  bottom: -32vmax;
+  background: radial-gradient(circle, rgba(255, 96, 82, 0.85), transparent 66%);
+  animation-duration: 52s;
+}
+
+.blob-gold {
+  right: -6vmax;
+  bottom: -28vmax;
+  width: 44vmax;
+  height: 44vmax;
+  background: radial-gradient(circle, rgba(255, 200, 70, 0.75), transparent 66%);
+  animation-duration: 33s;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(-6vmax, -4vmax, 0) scale(1);
+  }
+  to {
+    transform: translate3d(9vmax, 7vmax, 0) scale(1.18);
+  }
+}
+
+.svg-defs {
+  position: absolute;
+}
+
+/* Liquid glass surface.
+   The blur and refraction sit on pseudo-elements so the host stays out of
+   the backdrop-root rules: nested glass still samples the real backdrop.
+   Never put filter, opacity or a mask on a host, or it loses that. */
+:where(.glass, #titlebar, #stats, #prompt, .countdown, .tile, .option, .primary) {
+  position: relative;
+  isolation: isolate;
+  border: 0;
+  background: transparent;
+  box-shadow: 0 8px 22px rgba(2, 8, 24, 0.16);
+}
+
+:where(.glass, #titlebar, #stats, #prompt, .countdown, .tile, .option, .primary)::before,
+:where(.glass, #titlebar, #stats, #prompt, .countdown, .tile, .option, .primary)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+/* Body of the glass. Without refraction support it covers the whole surface. */
+:where(.glass, #titlebar, #stats, #prompt, .countdown, .tile, .option, .primary)::before {
+  backdrop-filter: blur(20px) saturate(185%) var(--glass-dim);
+  background: var(--glass-fill);
+}
+
+/* Specular rim */
+:where(.glass, #titlebar, #stats, #prompt, .countdown, .tile, .option, .primary)::after {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.72),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+    inset 0 -10px 14px -12px rgba(255, 255, 255, 0.5);
+}
+
+/* Where supported, the outer band bends the backdrop instead of only blurring it. */
+@supports (backdrop-filter: url(#x)) {
+  :where(.glass, #titlebar, #stats, #prompt, .countdown, .tile, .option, .primary)::before {
+    padding: var(--edge);
+    mask: linear-gradient(#000 0 0) content-box;
+  }
+
+  :where(.glass, #titlebar, #stats, #prompt, .countdown, .tile, .option, .primary)::after {
+    padding: var(--edge);
+    backdrop-filter: url(#glass-refract) blur(2px) saturate(200%) var(--glass-dim);
+    background: var(--glass-fill);
+    mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    mask-composite: exclude;
+  }
 }
 
 button {
@@ -40,12 +176,12 @@ button {
   color: inherit;
   cursor: pointer;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  border: 0;
 }
 
 :focus-visible {
   outline: 3px solid var(--accent);
-  outline-offset: 2px;
+  outline-offset: 3px;
 }
 
 #prompt:focus {
@@ -57,15 +193,17 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 40px;
+  height: 38px;
+  margin: 8px 8px 0;
   padding-inline: 16px 6px;
+  border-radius: 14px;
   user-select: none;
 }
 
 .app-name {
+  font-family: var(--display-font);
   font-size: 0.85rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
 }
 
 #window-controls {
@@ -75,9 +213,18 @@ button {
 
 #window-controls button {
   width: 36px;
-  height: 28px;
-  border-radius: 8px;
+  height: 26px;
+  border-radius: 9px;
   line-height: 1;
+  transition: background-color 120ms ease;
+}
+
+#window-controls button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+#close-button:hover {
+  background: rgba(232, 60, 60, 0.85);
 }
 
 /* Stats */
@@ -85,22 +232,23 @@ button {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 4px 24px;
-  margin: 0 16px;
-  padding: 8px 16px;
-  border-radius: var(--radius);
+  justify-self: center;
+  gap: 2px 26px;
+  margin: 8px 16px 0;
+  padding: 8px 26px;
+  border-radius: 20px;
 }
 
 .stat {
   display: flex;
   flex-direction: column;
   align-items: center;
-  min-width: 56px;
+  min-width: 54px;
 }
 
 .stat-value {
-  font-size: 1.05rem;
-  font-weight: 700;
+  font-family: var(--display-font);
+  font-size: 1.1rem;
   font-variant-numeric: tabular-nums;
 }
 
@@ -119,15 +267,17 @@ button {
 }
 
 .intro {
-  max-width: 460px;
-  padding: 28px;
-  border-radius: 24px;
+  max-width: 470px;
+  padding: 34px 36px;
+  border-radius: 30px;
   text-align: center;
 }
 
 .intro h1 {
-  margin: 0 0 12px;
-  font-size: 1.8rem;
+  margin: 0 0 14px;
+  font-family: var(--display-font);
+  font-size: 2.1rem;
+  font-weight: 600;
 }
 
 .intro p {
@@ -136,11 +286,20 @@ button {
 }
 
 .primary {
-  min-width: 140px;
-  margin-top: 8px;
-  padding: 10px 28px;
+  min-width: 150px;
+  margin-top: 10px;
+  padding: 11px 30px;
   border-radius: 999px;
-  font-weight: 700;
+  font-family: var(--display-font);
+  font-size: 1.05rem;
+  transition: transform 160ms cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.primary::before,
+.primary::after {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.02) 55%),
+    rgba(0, 96, 130, 0.5);
 }
 
 /* Card */
@@ -148,19 +307,66 @@ button {
   display: grid;
   grid-template-columns: repeat(3, var(--tile));
   gap: var(--gap);
-  padding: var(--gap);
-  border-radius: 22px;
 }
 
 .tile {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   width: var(--tile);
   height: var(--tile);
-  border: 1px solid rgba(255, 255, 255, 0.25);
   border-radius: var(--radius);
+}
+
+/* Tiles and options hold only opaque emoji, so they can stay far clearer than
+   panels with text. Marked tiles go dark again, so their outline stands out. */
+.tile,
+.option {
+  --glass-dim: brightness(0.88);
+  --glass-fill:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.04) 50%),
+    rgba(10, 14, 30, 0.06);
+}
+
+.tile.asked,
+.tile.right,
+.tile.wrong {
+  --glass-dim: brightness(0.55);
+  --glass-fill:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.02) 50%),
+    rgba(10, 14, 30, 0.3);
+}
+
+[data-phase="memorize"] .tile,
+[data-phase="result"] .tile {
+  animation: pop 420ms cubic-bezier(0.3, 1.5, 0.5, 1) backwards;
+}
+
+/* Tiles swell into place, one diagonal at a time. */
+.tile:nth-child(2),
+.tile:nth-child(4) {
+  animation-delay: 40ms;
+}
+
+.tile:nth-child(3),
+.tile:nth-child(5),
+.tile:nth-child(7) {
+  animation-delay: 80ms;
+}
+
+.tile:nth-child(6),
+.tile:nth-child(8) {
+  animation-delay: 120ms;
+}
+
+.tile:nth-child(9) {
+  animation-delay: 160ms;
+}
+
+@keyframes pop {
+  from {
+    transform: scale(0.82);
+  }
 }
 
 .tile .emoji {
@@ -172,23 +378,48 @@ button {
   line-height: 1;
 }
 
+.tile.asked,
+.tile.right,
+.tile.wrong {
+  outline: 3px solid var(--state);
+  outline-offset: -3px;
+}
+
 .tile.asked {
-  border: 3px solid var(--accent);
+  --state: var(--accent);
+  animation: breathe 1.8s ease-in-out infinite alternate;
 }
 
 .tile.right {
-  border: 3px solid var(--right);
+  --state: var(--right);
 }
 
 .tile.wrong {
-  border: 3px solid var(--wrong);
+  --state: var(--wrong);
+}
+
+@keyframes breathe {
+  from {
+    transform: scale(1);
+    box-shadow: 0 0 10px rgba(127, 233, 255, 0.35);
+  }
+  to {
+    transform: scale(1.04);
+    box-shadow: 0 0 30px rgba(127, 233, 255, 0.85);
+  }
 }
 
 .mark {
   position: absolute;
-  top: 2px;
+  top: 6px;
   right: 6px;
-  font-size: 1.05rem;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: rgba(6, 10, 24, 0.82);
+  font-size: 0.92rem;
   font-weight: 800;
 }
 
@@ -202,21 +433,27 @@ button {
 
 .picked {
   position: absolute;
-  bottom: 3px;
+  bottom: 6px;
   left: 6px;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(6, 10, 24, 0.82);
   font-family: var(--emoji-font);
-  font-size: calc(var(--tile) * 0.22);
+  font-size: 1rem;
   line-height: 1;
 }
 
-/* Memorize */
+/* Screens */
 .memorize,
 .result,
 .recall {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .countdown {
@@ -224,6 +461,8 @@ button {
   align-items: center;
   gap: 12px;
   width: 100%;
+  padding: 8px 16px;
+  border-radius: 999px;
 }
 
 .countdown-track {
@@ -237,22 +476,25 @@ button {
 #countdown-bar {
   height: 100%;
   border-radius: 999px;
-  background: var(--accent);
+  background: linear-gradient(90deg, #36c8ff, var(--accent) 70%, #fff);
+  box-shadow: 0 0 12px rgba(127, 233, 255, 0.9);
   transform-origin: left;
   transition: transform 100ms linear;
 }
 
 #countdown-seconds {
   min-width: 2ch;
-  font-weight: 700;
+  font-family: var(--display-font);
+  font-size: 1.05rem;
   font-variant-numeric: tabular-nums;
   text-align: right;
 }
 
-/* Recall */
 #prompt {
   margin: 0;
-  font-size: 1.05rem;
+  padding: 8px 20px;
+  border-radius: 999px;
+  font-size: 1rem;
   font-weight: 600;
   text-align: center;
 }
@@ -269,12 +511,14 @@ button {
   --option: clamp(44px, min(14vw, 7.5vh), 96px);
 }
 
+[data-phase="result"] {
+  --tile: clamp(64px, min(22vw, 17vh), 140px);
+}
+
 #options {
   display: grid;
   grid-template-columns: repeat(4, var(--option));
   gap: var(--gap);
-  padding: var(--gap);
-  border-radius: 22px;
 }
 
 .option {
@@ -284,11 +528,22 @@ button {
   width: var(--option);
   height: var(--option);
   padding: 0;
-  border-radius: 14px;
+  border-radius: 16px;
+  transition: transform 160ms cubic-bezier(0.3, 1.6, 0.5, 1);
 }
 
 .option .emoji {
   font-size: calc(var(--option) * 0.55);
+}
+
+.option:hover,
+.primary:hover {
+  transform: scale(1.06);
+}
+
+.option:active,
+.primary:active {
+  transform: scale(0.95);
 }
 
 @media (min-width: 700px) {
@@ -299,6 +554,30 @@ button {
 
   .recall-body {
     flex-direction: row;
-    gap: 18px;
+    gap: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob,
+  .tile,
+  .tile.asked {
+    animation: none;
+  }
+
+  .tile.asked {
+    box-shadow: 0 0 24px rgba(127, 233, 255, 0.8);
+  }
+
+  .option,
+  .primary {
+    transition: none;
+  }
+
+  .option:hover,
+  .option:active,
+  .primary:hover,
+  .primary:active {
+    transform: none;
   }
 }
