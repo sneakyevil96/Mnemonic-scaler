@@ -3,14 +3,16 @@
   --radius: 18px;
   --edge: 7px;
   --text: #fff;
-  --text-soft: rgba(255, 255, 255, 0.86);
+  --text-soft: #fff;
   --right: #6dffb4;
   --wrong: #ff9d94;
   --accent: #7fe9ff;
-  --glass-dim: brightness(0.55);
+  /* backdrop-filter only sees the page, never the desktop behind the window.
+     So the fill alone must keep text readable over a white desktop. */
+  --glass-dim: brightness(0.8);
   --glass-fill:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.03) 48%),
-    rgba(10, 14, 30, 0.25);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02) 48%),
+    rgba(10, 14, 30, 0.58);
   --display-font: "Bahnschrift", "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
   --body-font: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
   --emoji-font: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
@@ -179,9 +181,11 @@ button {
   border: 0;
 }
 
+/* The dark halo keeps the light ring visible over a white desktop. */
 :focus-visible {
   outline: 3px solid var(--accent);
-  outline-offset: 3px;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 8px rgba(6, 10, 24, 0.8);
 }
 
 #prompt:focus {
@@ -298,8 +302,8 @@ button {
 .primary::before,
 .primary::after {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.02) 55%),
-    rgba(0, 96, 130, 0.5);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02) 55%),
+    rgba(0, 70, 100, 0.8);
 }
 
 /* Card */
@@ -324,17 +328,17 @@ button {
 .option {
   --glass-dim: brightness(0.88);
   --glass-fill:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.04) 50%),
-    rgba(10, 14, 30, 0.06);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.03) 50%),
+    rgba(10, 14, 30, 0.22);
 }
 
 .tile.asked,
 .tile.right,
 .tile.wrong {
-  --glass-dim: brightness(0.55);
+  --glass-dim: brightness(0.7);
   --glass-fill:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.02) 50%),
-    rgba(10, 14, 30, 0.3);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.02) 50%),
+    rgba(10, 14, 30, 0.72);
 }
 
 [data-phase="memorize"] .tile,
@@ -560,8 +564,7 @@ button {
 
 @media (prefers-reduced-motion: reduce) {
   .blob,
-  .tile,
-  .tile.asked {
+  [data-phase] .tile {
     animation: none;
   }
 

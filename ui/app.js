@@ -3,7 +3,11 @@
   const G = globalThis.MnemonicGame;
   const TICK_MS = 100;
   // Options and Next appear under the cursor, so a double-click must not hit them too.
-  const INPUT_LOCK_MS = 300;
+  // 500 ms is the default Windows double-click time.
+  const INPUT_LOCK_MS = 500;
+  // WebView2 keeps browser shortcuts on. Reload would wipe the session.
+  const BROWSER_KEYS = new Set(['F3', 'F5', 'F7', 'BrowserBack', 'BrowserForward', 'BrowserRefresh']);
+  const BROWSER_CTRL_KEYS = new Set(['f', 'g', 'j', 'p', 'r', 'u']);
 
   const screen = document.getElementById('screen');
   const state = {
@@ -209,14 +213,22 @@
     renderers[phase]();
   }
 
-  // A held key must not press whichever button takes focus next.
+  function isBrowserShortcut(event) {
+    if (BROWSER_KEYS.has(event.key)) return true;
+    if (event.altKey && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) return true;
+    return (event.ctrlKey || event.metaKey) && BROWSER_CTRL_KEYS.has(event.key.toLowerCase());
+  }
+
   document.addEventListener(
     'keydown',
     (event) => {
-      if (event.repeat && (event.key === 'Enter' || event.key === ' ')) event.preventDefault();
+      // A held key must not press whichever button takes focus next.
+      const heldActivation = event.repeat && (event.key === 'Enter' || event.key === ' ');
+      if (heldActivation || isBrowserShortcut(event)) event.preventDefault();
     },
     true,
   );
+  document.addEventListener('contextmenu', (event) => event.preventDefault());
   document.addEventListener('visibilitychange', tick);
 
   // Outside the Tauri app, as in a plain browser, there is no window to control.
