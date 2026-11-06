@@ -219,7 +219,14 @@
   );
   document.addEventListener('visibilitychange', tick);
 
+  // Outside the Tauri app, as in a plain browser, there is no window to control.
   document.getElementById('window-controls').hidden = !window.__TAURI__;
+  if (window.__TAURI__) {
+    const appWindow = window.__TAURI__.window.getCurrentWindow();
+    document.documentElement.classList.add('tauri');
+    document.getElementById('minimize-button').addEventListener('click', () => appWindow.minimize());
+    document.getElementById('close-button').addEventListener('click', () => appWindow.close());
+  }
 
   setPhase('start');
 })();

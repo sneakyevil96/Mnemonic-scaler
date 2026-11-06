@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <defs>
+    <linearGradient id="back" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#00c8b4" />
+      <stop offset="0.55" stop-color="#2676ff" />
+      <stop offset="1" stop-color="#ff6052" />
+    </linearGradient>
+    <linearGradient id="pane" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.72" />
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0.26" />
+    </linearGradient>
+  </defs>
+  <rect x="32" y="32" width="960" height="960" rx="220" fill="url(#back)" />
+  <g fill="url(#pane)" stroke="#ffffff" stroke-opacity="0.85" stroke-width="10">
+    <rect x="172" y="172" width="208" height="208" rx="52" />
+    <rect x="408" y="172" width="208" height="208" rx="52" />
+    <rect x="644" y="172" width="208" height="208" rx="52" />
+    <rect x="172" y="408" width="208" height="208" rx="52" />
+    <rect x="408" y="408" width="208" height="208" rx="52" fill="#ffffff" fill-opacity="0.95" />
+    <rect x="644" y="408" width="208" height="208" rx="52" />
+    <rect x="172" y="644" width="208" height="208" rx="52" />
+    <rect x="408" y="644" width="208" height="208" rx="52" />
+    <rect x="644" y="644" width="208" height="208" rx="52" />
+  </g>
+</svg>
